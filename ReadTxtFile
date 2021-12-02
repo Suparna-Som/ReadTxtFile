@@ -1,0 +1,82 @@
+package DAO;
+
+import java.io.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class ReadTxtFile {
+    public static void main(String args[]) throws SQLException, IOException {
+
+            try {
+                Class.forName("com.mysql.jdbc.Driver");
+                Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ifanow", "root", "root");
+                Statement st = con.createStatement();
+                //PreparedStatement stmt = con.prepareStatement(queries.storeLibraryData);
+                FileInputStream fstream = new FileInputStream("src/bse_sip.txt");
+                DataInputStream in = new DataInputStream(fstream);
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+                String strLine;
+                int count = 0;
+                ArrayList list = new ArrayList();
+                while ((strLine = br.readLine()) != null) {
+                    if(count != 0 ){
+                        System.out.println();
+                        list.add(strLine);
+                    }
+                    count++;
+
+                }
+                Iterator itr;
+                for (itr = list.iterator(); itr.hasNext(); ) {
+                    String str = itr.next().toString();
+                    String[] splitSt = str.split("\\|");
+                    String amc_code = "";
+                    String amc_name = "";
+                    String scheme_code = "";
+                    String scheme_name = "";
+                    String sip_transaction_mode = "";
+                    String sip_frequency = "";
+                    String sip_dates = "";
+                    int sip_minimum_gap = 0;
+                    int sip_maximum_gap = 0;
+                    int sip_installment_gap = 0;
+                    int sip_status = 0;
+                    float sip_minimum_installment_amount = 0;
+                    float sip_maximum_installment_amount = 0;
+                    float sip_multiplier_amount = 0;
+                    int sip_minimum_installment_number = 0;
+                    int sip_maximum_installment_number = 0;
+                    String isin = "";
+                    String scheme_type = "";
+                   //String id = "", name = "", course = "", deptt = "";
+                    for (int i = 0; i < splitSt.length; i++) {
+                        amc_code = splitSt[0];
+                        amc_name = splitSt[1];
+                        scheme_code = splitSt[2];
+                        scheme_name = splitSt[3];
+                        sip_transaction_mode = splitSt[4];
+                        sip_frequency = splitSt[5];
+                        sip_dates = splitSt[6];
+                        isin = splitSt[16];
+                        scheme_type = splitSt[17];
+                        sip_minimum_gap = Integer.parseInt(splitSt[7]);
+                        sip_maximum_gap = Integer.parseInt(splitSt[8]);
+                        sip_installment_gap = Integer.parseInt(splitSt[9]);
+                        sip_status = Integer.parseInt(splitSt[10]);
+                        sip_minimum_installment_amount = Float.parseFloat(splitSt[11]);
+                        sip_maximum_installment_amount = Float.parseFloat(splitSt[12]);
+                        sip_multiplier_amount = Float.parseFloat(splitSt[13]);
+                        sip_minimum_installment_number = Integer.parseInt(splitSt[14]);
+                        sip_maximum_installment_number = Integer.parseInt(splitSt[15]);
+
+                    }
+                        int k = st.executeUpdate("INSERT INTO `bse_sip_scheme_master` (`amc_code`, `amc_name`, `scheme_code`, `scheme_name`, `sip_transaction_mode`, `sip_frequency`, `sip_dates`, `sip_minimum_gap`, `sip_maximum_gap`, `sip_installment_gap`, `sip_minimum_installment_amount`, `sip_maximum_installment_amount`, `sip_multiplier_amount`, `sip_minimum_installment_number`, `sip_maximum_installment_number`, `isin`, `scheme_type`, `sip_status`)VALUES('" + amc_code + "','" + amc_name + "','" + scheme_code + "','" + scheme_name + "','" + sip_transaction_mode + "','" + sip_frequency + "','" + sip_dates + "','" + sip_minimum_gap + "','" + sip_maximum_gap + "','" + sip_installment_gap + "','" + sip_minimum_installment_amount + "','" + sip_maximum_installment_amount + "','" + sip_multiplier_amount + "','" + sip_minimum_installment_number + "','" + sip_maximum_installment_number + "','" + isin + "','" + scheme_type + "','" + sip_status + "')");
+                        System.out.println("rowsupdated" + k);
+                }
+            }
+            catch(Exception e){
+            System.out.println(e);
+            }
+    }
+}
