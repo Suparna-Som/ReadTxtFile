@@ -1,0 +1,78 @@
+package Inventory;
+
+import Query.Query_Order;
+
+import java.io.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class MainClass {
+    public static void main(String args[]) throws SQLException, IOException {
+        Query_Order query_order = new Query_Order();
+
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ifanow", "root", "root");
+        PreparedStatement st = null;
+        try {
+
+                st = con.prepareStatement(query_order.insertBulk);
+                FileInputStream fstream = new FileInputStream("src/SIPSCH_29112021.TXT");
+                DataInputStream in = new DataInputStream(fstream);
+                BufferedReader br = new BufferedReader(new InputStreamReader(in));
+
+                String strLine;
+                int count = 0;
+                ArrayList list = new ArrayList();
+                while ((strLine = br.readLine()) != null) {
+                    if(count != 0 ){
+                        System.out.println();
+                        list.add(strLine);
+                    }
+                    count++;
+                }
+                Iterator itr;
+                for (itr = list.iterator(); itr.hasNext(); ) {
+                    String str = itr.next().toString();
+                    String[] splitSt = str.split("\\|");
+                    for (int i = 0; i < splitSt.length; i++) {
+                        st.setString(1,splitSt[0]);st.setString(2,splitSt[1]);
+                        st.setString(3,splitSt[2]);st.setString(4,splitSt[3]);
+                        st.setString(5,splitSt[4]);st.setString(6,splitSt[5]);
+                        st.setString(7,splitSt[6]);
+
+                        st.setInt(8, Integer.parseInt(splitSt[7]));
+                        st.setInt(9, Integer.parseInt(splitSt[8]));
+                        st.setInt(10, Integer.parseInt(splitSt[9]));
+
+                        st.setFloat(11,Float.parseFloat(splitSt[11]));
+                        st.setFloat(12,Float.parseFloat(splitSt[12]));
+                        st.setFloat(13,Float.parseFloat(splitSt[13]));
+                        st.setInt(14,Integer.parseInt(splitSt[14]));
+                        st.setInt(15,Integer.parseInt(splitSt[15]));
+
+                        st.setString(16,splitSt[16]);
+                        st.setString(17,splitSt[17]);
+                        st.setString(18,splitSt[10]);
+
+                    }
+                    st.addBatch();
+                }
+                int[] k = st.executeBatch();
+                System.out.println("rowsupdated" + k.length);
+            }
+            catch(Exception e){
+                e.printStackTrace();
+                //con.rollBack();
+            } finally{
+                if(st!=null)
+                    st.close();
+                if(con!=null)
+                    con.close();
+            }
+    }
+}
